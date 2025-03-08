@@ -52,7 +52,7 @@ n_batches = 1
 # This is not related to running the model, only to postprocessing steps
 # in this notebook.  Threads work better on Windows, processes on Linux.
 use_threads_for_parallelization = (os.name == 'nt')
-max_images_per_chunk = 1000
+max_images_per_chunk = 2000
 classifier_batch_size = 16
 
 # Only necessary when using a custom taxonomy list
