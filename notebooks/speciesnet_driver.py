@@ -264,6 +264,7 @@ merge_prediction_json_files(input_prediction_files=chunk_prediction_files,
 from megadetector.utils.wi_utils import validate_predictions_file
 _ = validate_predictions_file(classifier_output_file_modular,instances_json)
 
+#%% ############################################################################
 
 #%% Run ensemble
 
@@ -276,14 +277,15 @@ cmd += ' --instances_json "{}"'.format(instances_json)
 cmd += ' --predictions_json "{}"'.format(ensemble_output_file_modular)
 cmd += ' --detections_json "{}"'.format(detector_output_file_modular)
 cmd += ' --classifications_json "{}"'.format(classifier_output_file_modular)
-
+cmd += ' --geofence'
+if country_code is not None:
+    cmd += ' --country {}'.format(country_code) 
 if custom_taxa_list is not None:
     cmd += ' --nogeofence'
 ensemble_commands.append(cmd)
 
 ensemble_cmd = '\n\n'.join(ensemble_commands)
-# print(ensemble_cmd); clipboard.copy(ensemble_cmd)
-
+print(ensemble_cmd); clipboard.copy(ensemble_cmd)
 
 #%% Validate ensemble results
 
@@ -642,132 +644,132 @@ parallel_zip_files(json_files,verbose=True)
 
 #%% Scrap
 
-# if False:
+if False:
     
-#     pass
+    pass
 
-#     #%% Run everything using SpeciesNet (all-in-one)
+    #%% Run everything using SpeciesNet (all-in-one)
     
-#     ensemble_commands = []
-#     ensemble_commands.append(f'cd {speciesnet_folder} && mamba activate {speciesnet_pt_environment_name}')
+    ensemble_commands = []
+    ensemble_commands.append(f'cd {speciesnet_folder} && mamba activate {speciesnet_pt_environment_name}')
     
-#     if instances_json is not None:
-#         source_specifier = '--instances_json "{}"'.format(instances_json)
-#     else:
-#         source_specifier = '--folders "{}"'.format(input_folder)
+    if instances_json is not None:
+        source_specifier = '--instances_json "{}"'.format(instances_json)
+    else:
+        source_specifier = '--folders "{}"'.format(input_folder)
         
-#     ensemble_output_file_all_in_one = os.path.join(output_base,job_name + '-ensemble_output_all_in_one.json')
+    ensemble_output_file_all_in_one = os.path.join(output_base,job_name + '-ensemble_output_all_in_one.json')
         
-#     cmd = '{} python scripts/run_model.py --model "{}"'.format(cuda_prefix,model_file)
-#     cmd += ' ' + source_specifier
-#     cmd += ' --predictions_json "{}"'.format(ensemble_output_file_all_in_one)
-#     ensemble_commands.append(cmd)
+    cmd = '{} python scripts/run_model.py --model "{}"'.format(cuda_prefix,model_file)
+    cmd += ' ' + source_specifier
+    cmd += ' --predictions_json "{}"'.format(ensemble_output_file_all_in_one)
+    ensemble_commands.append(cmd)
     
-#     ensemble_cmd = '\n\n'.join(ensemble_commands)
-#     print(ensemble_cmd)
-#     # clipboard.copy(ensemble_cmd)
+    ensemble_cmd = '\n\n'.join(ensemble_commands)
+    print(ensemble_cmd)
+    # clipboard.copy(ensemble_cmd)
     
 
-#     #%% Run everything using MD + SpeciesNet
+    #%% Run everything using MD + SpeciesNet
     
-#     md_environment_name = 'megadetector'
-#     md_folder = os.path.expanduser('~/git/MegaDetector/megadetector')
-#     md_python_path = '{}:{}'.format(
-#         os.path.expanduser('~/git/yolov5-md'),
-#         os.path.expanduser('~/git/MegaDetector'))
+    md_environment_name = 'megadetector'
+    md_folder = os.path.expanduser('~/git/MegaDetector/megadetector')
+    md_python_path = '{}:{}'.format(
+        os.path.expanduser('~/git/yolov5-md'),
+        os.path.expanduser('~/git/MegaDetector'))
 
-#     detector_output_file_md = os.path.join(output_base,job_name + '-detector_output_md.json')
-#     detector_output_file_predictions_format_md = insert_before_extension(detector_output_file_md,'predictons-format')
-#     classifier_output_file_md = os.path.join(output_base,job_name + '-classifier_output_md.json')
-#     ensemble_output_file_md = os.path.join(output_base,job_name + '-ensemble_output_md.json')
+    detector_output_file_md = os.path.join(output_base,job_name + '-detector_output_md.json')
+    detector_output_file_predictions_format_md = insert_before_extension(detector_output_file_md,'predictons-format')
+    classifier_output_file_md = os.path.join(output_base,job_name + '-classifier_output_md.json')
+    ensemble_output_file_md = os.path.join(output_base,job_name + '-ensemble_output_md.json')
     
-#     if instances_json is not None:
-#         source_specifier = '--instances_json "{}"'.format(instances_json)
-#     else:
-#         source_specifier = '--folders "{}"'.format(input_folder)
+    if instances_json is not None:
+        source_specifier = '--instances_json "{}"'.format(instances_json)
+    else:
+        source_specifier = '--folders "{}"'.format(input_folder)
     
-#     ## Run MegaDetector
+    ## Run MegaDetector
     
-#     megadetector_commands = []
-#     megadetector_commands.append(f'export PYTHONPATH={md_python_path}')
-#     megadetector_commands.append(f'cd {md_folder}')
-#     megadetector_commands.append(f'mamba activate {md_environment_name}')
-#     cmd = '{} python detection/run_detector_batch.py MDV5A "{}" "{}" --quiet --recursive'.format(
-#         cuda_prefix, input_folder, detector_output_file_md)
-#     # Use absolute paths
-#     # cmd += ' --output_relative_filenames'
-#     megadetector_commands.append(cmd)
+    megadetector_commands = []
+    megadetector_commands.append(f'export PYTHONPATH={md_python_path}')
+    megadetector_commands.append(f'cd {md_folder}')
+    megadetector_commands.append(f'mamba activate {md_environment_name}')
+    cmd = '{} python detection/run_detector_batch.py MDV5A "{}" "{}" --quiet --recursive'.format(
+        cuda_prefix, input_folder, detector_output_file_md)
+    # Use absolute paths
+    # cmd += ' --output_relative_filenames'
+    megadetector_commands.append(cmd)
     
-#     megadetector_cmd = '\n\n'.join(megadetector_commands)
-#     # print(megadetector_cmd); clipboard.copy(megadetector_cmd)
+    megadetector_cmd = '\n\n'.join(megadetector_commands)
+    # print(megadetector_cmd); clipboard.copy(megadetector_cmd)
     
-#     ## Convert to predictions format
+    ## Convert to predictions format
     
-#     conversion_commands = ['']
-#     conversion_commands.append(f'cd {md_folder}')
-#     conversion_commands.append(f'mamba activate {md_environment_name}')
+    conversion_commands = ['']
+    conversion_commands.append(f'cd {md_folder}')
+    conversion_commands.append(f'mamba activate {md_environment_name}')
     
-#     cmd = 'python postprocessing/md_to_wi.py "{}" "{}"'.format(
-#             detector_output_file_md,detector_output_file_predictions_format_md)
-#     conversion_commands.append(cmd)
+    cmd = 'python postprocessing/md_to_wi.py "{}" "{}"'.format(
+            detector_output_file_md,detector_output_file_predictions_format_md)
+    conversion_commands.append(cmd)
     
-#     conversion_cmd = '\n\n'.join(conversion_commands)
-#     # print(conversion_cmd); clipboard.copy(conversion_cmd)
+    conversion_cmd = '\n\n'.join(conversion_commands)
+    # print(conversion_cmd); clipboard.copy(conversion_cmd)
     
-#     ## Run classifier
+    ## Run classifier
     
-#     classifier_commands = ['']
-#     classifier_commands.append(f'cd {speciesnet_folder} && mamba activate {speciesnet_tf_environment_name}')
+    classifier_commands = ['']
+    classifier_commands.append(f'cd {speciesnet_folder} && mamba activate {speciesnet_tf_environment_name}')
     
-#     cmd = '{} python scripts/run_model.py --classifier_only --model "{}"'.format(
-#         cuda_prefix,model_file)
-#     cmd += ' ' + source_specifier
-#     cmd += ' --predictions_json "{}"'.format(classifier_output_file_md)
-#     cmd += ' --detections_json "{}"'.format(detector_output_file_predictions_format_md)
-#     classifier_commands.append(cmd)
+    cmd = '{} python scripts/run_model.py --classifier_only --model "{}"'.format(
+        cuda_prefix,model_file)
+    cmd += ' ' + source_specifier
+    cmd += ' --predictions_json "{}"'.format(classifier_output_file_md)
+    cmd += ' --detections_json "{}"'.format(detector_output_file_predictions_format_md)
+    classifier_commands.append(cmd)
     
-#     classifier_cmd = '\n\n'.join(classifier_commands)
-#     # print(classifier_cmd); clipboard.copy(classifier_cmd)
+    classifier_cmd = '\n\n'.join(classifier_commands)
+    # print(classifier_cmd); clipboard.copy(classifier_cmd)
     
-#     ## Run ensemble
+    ## Run ensemble
     
-#     # It doesn't matter here which environment we use
-#     ensemble_commands = ['']
-#     ensemble_commands.append(f'cd {speciesnet_folder} && mamba activate {speciesnet_tf_environment_name}')
+    # It doesn't matter here which environment we use
+    ensemble_commands = ['']
+    ensemble_commands.append(f'cd {speciesnet_folder} && mamba activate {speciesnet_tf_environment_name}')
     
-#     cmd = '{} python scripts/run_model.py --ensemble_only --model "{}"'.format(
-#         cuda_prefix,model_file)
-#     cmd += ' ' + source_specifier
-#     cmd += ' --predictions_json "{}"'.format(ensemble_output_file_md)
-#     cmd += ' --detections_json "{}"'.format(detector_output_file_predictions_format_md)
-#     cmd += ' --classifications_json "{}"'.format(classifier_output_file_md)
-#     ensemble_commands.append(cmd)
+    cmd = '{} python scripts/run_model.py --ensemble_only --model "{}"'.format(
+        cuda_prefix,model_file)
+    cmd += ' ' + source_specifier
+    cmd += ' --predictions_json "{}"'.format(ensemble_output_file_md)
+    cmd += ' --detections_json "{}"'.format(detector_output_file_predictions_format_md)
+    cmd += ' --classifications_json "{}"'.format(classifier_output_file_md)
+    ensemble_commands.append(cmd)
     
-#     ensemble_cmd = '\n\n'.join(ensemble_commands)
-#     # print(ensemble_cmd); clipboard.copy(ensemble_cmd)
+    ensemble_cmd = '\n\n'.join(ensemble_commands)
+    # print(ensemble_cmd); clipboard.copy(ensemble_cmd)
     
-#     ## All in one long command
+    ## All in one long command
     
-#     modular_command = '\n\n'.join([megadetector_cmd,conversion_cmd,classifier_cmd,ensemble_cmd])
-#     print(modular_command)
-#     # clipboard.copy(modular_command)
+    modular_command = '\n\n'.join([megadetector_cmd,conversion_cmd,classifier_cmd,ensemble_cmd])
+    print(modular_command)
+    # clipboard.copy(modular_command)
 
 
-#     #%% Run the classifier in a single command
+    #%% Run the classifier in a single command
     
-#     if max_images_per_chunk is None:
+    if max_images_per_chunk is None:
        
-#         classifier_commands = []
-#         classifier_commands.append(f'{cuda_prefix} cd {speciesnet_folder} && mamba activate {speciesnet_tf_environment_name}')
+        classifier_commands = []
+        classifier_commands.append(f'{cuda_prefix} cd {speciesnet_folder} && mamba activate {speciesnet_tf_environment_name}')
         
-#         cmd = 'python scripts/run_model.py --classifier_only --model "{}"'.format(model_file)
-#         cmd += ' ' + source_specifier
-#         cmd += ' --predictions_json "{}"'.format(classifier_output_file_modular)
-#         cmd += ' --detections_json "{}"'.format(detector_output_file_modular)
-#         if classifier_batch_size is not None:
-#            cmd += ' --batch_size {}'.format(classifier_batch_size)
-#         classifier_commands.append(cmd)
+        cmd = 'python scripts/run_model.py --classifier_only --model "{}"'.format(model_file)
+        cmd += ' ' + source_specifier
+        cmd += ' --predictions_json "{}"'.format(classifier_output_file_modular)
+        cmd += ' --detections_json "{}"'.format(detector_output_file_modular)
+        if classifier_batch_size is not None:
+           cmd += ' --batch_size {}'.format(classifier_batch_size)
+        classifier_commands.append(cmd)
        
-#         classifier_cmd = '\n\n'.join(classifier_commands)
-#         # print(classifier_cmd); clipboard.copy(classifier_cmd)
+        classifier_cmd = '\n\n'.join(classifier_commands)
+        # print(classifier_cmd); clipboard.copy(classifier_cmd)
        
