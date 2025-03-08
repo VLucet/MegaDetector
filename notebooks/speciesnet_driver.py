@@ -132,23 +132,22 @@ if n_batches > 1:
 
 #%% Run detector
 
-# detector_commands = []
-# detector_commands.append(f'{cuda_prefix} cd {speciesnet_folder} && mamba activate {speciesnet_pt_environment_name}')
+detector_commands = []
+detector_commands.append(f'{cuda_prefix} cd {speciesnet_folder} && mamba activate {speciesnet_pt_environment_name}')
 
-# cmd = 'python speciesnet/scripts/run_model.py --detector_only --model "{}"'.format(model_file)
-# cmd += ' --instances_json "{}"'.format(instances_json)
-# cmd += ' --predictions_json "{}"'.format(detector_output_file_modular)
-# detector_commands.append(cmd)
+cmd = 'python speciesnet/scripts/run_model.py --detector_only --model "{}"'.format(model_file)
+cmd += ' --instances_json "{}"'.format(instances_json)
+cmd += ' --predictions_json "{}"'.format(detector_output_file_modular)
+detector_commands.append(cmd)
 
-# detector_cmd = '\n\n'.join(detector_commands)
-# print(detector_cmd); clipboard.copy(detector_cmd)
+detector_cmd = '\n\n'.join(detector_commands)
+print(detector_cmd); clipboard.copy(detector_cmd)
 
 
 #%% Validate detector results
 
-# from megadetector.utils.wi_utils import validate_predictions_file
-# _ = validate_predictions_file(detector_output_file_modular,instances_json)
-
+from megadetector.utils.wi_utils import validate_predictions_file
+_ = validate_predictions_file(detector_output_file_modular,instances_json)
 
 #%% Prep classifier
    
